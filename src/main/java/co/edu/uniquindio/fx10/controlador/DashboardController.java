@@ -2,6 +2,7 @@ package co.edu.uniquindio.fx10.controlador;
 
 import co.edu.uniquindio.fx10.App;
 import co.edu.uniquindio.fx10.modelo.Producto;
+import co.edu.uniquindio.fx10.controlador.ListadoProductosController;
 import co.edu.uniquindio.fx10.repositorio.ProductoRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.io.IOException;
  * Controlador para el Dashboard principal
  */
 public class DashboardController {
+
 
     @FXML
     private VBox contenedorPrincipal;
@@ -44,18 +47,38 @@ public class DashboardController {
     private TableColumn<Producto, Integer> colStock;
 
     @FXML
+    public Label lblMensaje;
+
+    @FXML
     private Button btnCrearProducto;
 
     @FXML
     private Button btnEliminar;
 
+    @FXML
+    private Button btnMostrarProductos;
+
+
     private ProductoRepository productoRepository;
     private ObservableList<Producto> listaProductos;
 
     @FXML
+    private ListadoProductosController listadoController;
+
+    @FXML
+    private AnchorPane listadoProductos;
+
+
+
+
+
+    @FXML
     public void initialize() {
         productoRepository = ProductoRepository.getInstancia();
-        
+
+        //Obtener controlador de listadoProductos
+        listadoController = (ListadoProductosController) listadoProductos.getProperties().get("controller");
+
         // Configurar las columnas de la tabla
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -96,46 +119,28 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/FormularioProducto.fxml"));
             Parent formulario = loader.load();
-            
+
             // Obtener el controlador del formulario
             FormularioProductoController controller = loader.getController();
             controller.setDashboardController(this);
-            
+
             // Reemplazar el contenido del contenedor principal
             contenedorPrincipal.getChildren().clear();
             contenedorPrincipal.getChildren().add(formulario);
-            
+
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo cargar el formulario", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
-
-    /**
-     * Maneja el evento de click en el botón "Eliminar"
-     */
     @FXML
-    private void onEliminarProducto() {
-        Producto productoSeleccionado = tablaProductos.getSelectionModel().getSelectedItem();
-        
-        if (productoSeleccionado == null) {
-            mostrarAlerta("Advertencia", "Por favor seleccione un producto para eliminar", Alert.AlertType.WARNING);
-            return;
-        }
+    private void onMostrarProductos() {
+        boolean visible = !listadoProductos.isVisible();
+        listadoProductos.setVisible(visible);
+        listadoProductos.setManaged(visible);
 
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar eliminación");
-        confirmacion.setHeaderText("¿Está seguro de eliminar el producto?");
-        confirmacion.setContentText("Producto: " + productoSeleccionado.getNombre());
-
-        confirmacion.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                productoRepository.eliminarProducto(productoSeleccionado);
-                cargarProductos();
-                mostrarAlerta("Éxito", "Producto eliminado correctamente", Alert.AlertType.INFORMATION);
-            }
-        });
     }
+
 
     /**
      * Restaura la vista del dashboard
@@ -144,15 +149,14 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/Dashboard.fxml"));
             Parent dashboard = loader.load();
-            
+
             contenedorPrincipal.getChildren().clear();
             contenedorPrincipal.getChildren().add(dashboard);
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     /**
      * Muestra una alerta al usuario
      */
@@ -163,6 +167,8 @@ public class DashboardController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+
 
     public VBox getContenedorPrincipal() {
         return contenedorPrincipal;
