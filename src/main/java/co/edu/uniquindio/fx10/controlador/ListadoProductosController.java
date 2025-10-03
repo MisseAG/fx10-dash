@@ -8,38 +8,48 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
 
 import java.io.IOException;
 
-/**
- * Controlador para el Dashboard principal
- */
-public class DashboardController {
+public class ListadoProductosController {
 
     @FXML
-    private VBox contenedorPrincipal;
+    private AnchorPane contenedorListadoProductos;
+    @FXML
+    private TableView<Producto> tablaProductos;
 
     @FXML
-    private Label lblTitulo;
-
-
+    private TableColumn<Producto, String> colCodigo;
 
     @FXML
-    private Button btnCrearProducto;
+    private TableColumn<Producto, String> colNombre;
 
     @FXML
-    private Button btnMostrarProductos;
+    private TableColumn<Producto, String> colDescripcion;
 
     @FXML
-    private Button btnEliminar;
+    private TableColumn<Producto, Double> colPrecio;
+
+    @FXML
+    private TableColumn<Producto, Integer> colStock;
+
 
     private ProductoRepository productoRepository;
     private ObservableList<Producto> listaProductos;
+    private DashboardController dashboardController;
+    private VBox contenedorPrincipal;
 
-    /*@FXML
+
+    @FXML
     public void initialize() {
         productoRepository = ProductoRepository.getInstancia();
 
@@ -65,68 +75,31 @@ public class DashboardController {
 
         // Cargar los productos
         cargarProductos();
-    }*/
+    }
+
+    /**
+     * Establece el controlador del dashboard para poder regresar
+     */
+    public void setDashboardController(DashboardController dashboardController) {
+        this.dashboardController = dashboardController;
+        this.contenedorPrincipal = dashboardController.getContenedorPrincipal();
+    }
 
     /**
      * Carga los productos en la tabla
      */
-    /*
     public void cargarProductos() {
         listaProductos = FXCollections.observableArrayList(productoRepository.getProductos());
         tablaProductos.setItems(listaProductos);
-    }
-    */
-
-    /**
-     * Maneja el evento de click en el botón "Crear Producto"
-     */
-    @FXML
-    private void onCrearProducto() {
-        try {
-            FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/FormularioProducto.fxml"));
-            Parent formulario = loader.load();
-            
-            // Obtener el controlador del formulario
-            FormularioProductoController controller = loader.getController();
-            controller.setDashboardController(this);
-            
-            // Reemplazar el contenido del contenedor principal
-            contenedorPrincipal.getChildren().clear();
-            contenedorPrincipal.getChildren().add(formulario);
-            
-        } catch (IOException e) {
-            mostrarAlerta("Error", "No se pudo cargar el formulario", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Maneja el evento de clic en el botón "Mostrar Productos"
-     */
-    @FXML
-    private void onMostrarProductos(){
-        try {
-            FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/ListadoProductos.fxml"));
-            Parent listado = loader.load();
-
-            ListadoProductosController controller = loader.getController();
-            controller.setDashboardController(this);
-
-            contenedorPrincipal.getChildren().clear();
-            contenedorPrincipal.getChildren().add(listado);
-        }catch (IOException exception){
-            mostrarAlerta("Error", "No se pudo cargar la tabla", Alert.AlertType.ERROR);
-            exception.printStackTrace();
-        }
     }
 
     /**
      * Maneja el evento de click en el botón "Eliminar"
      */
-    /*@FXML
+    @FXML
     private void onEliminarProducto() {
         Producto productoSeleccionado = tablaProductos.getSelectionModel().getSelectedItem();
-        
+
         if (productoSeleccionado == null) {
             mostrarAlerta("Advertencia", "Por favor seleccione un producto para eliminar", Alert.AlertType.WARNING);
             return;
@@ -144,23 +117,48 @@ public class DashboardController {
                 mostrarAlerta("Éxito", "Producto eliminado correctamente", Alert.AlertType.INFORMATION);
             }
         });
-    }*/
+    }
 
     /**
-     * Restaura la vista del dashboard
+     * Maneja el evento de cancelar
      */
-    /*public void restaurarVista() {
+    @FXML
+    private void onCancelar() {
+        volverAlDashboard();
+    }
+
+    /**
+     * Vuelve a mostrar el dashboard
+     */
+    private void volverAlDashboard() {
         try {
             FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/Dashboard.fxml"));
             Parent dashboard = loader.load();
-            
+
             contenedorPrincipal.getChildren().clear();
             contenedorPrincipal.getChildren().add(dashboard);
-            
+
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo volver al dashboard", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Restaura la vista
+     */
+    public void restaurarVista() {
+        try {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("/co/edu/uniquindio/fx10/vista/ListadoProductos.fxml"));
+            Parent dashboard = loader.load();
+
+            contenedorListadoProductos.getChildren().clear();
+            contenedorListadoProductos.getChildren().add(dashboard);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     /**
      * Muestra una alerta al usuario
@@ -173,8 +171,7 @@ public class DashboardController {
         alerta.showAndWait();
     }
 
-    public VBox getContenedorPrincipal() {
-        return contenedorPrincipal;
+    public AnchorPane getContenedorListadoProductos() {
+        return contenedorListadoProductos;
     }
 }
-
