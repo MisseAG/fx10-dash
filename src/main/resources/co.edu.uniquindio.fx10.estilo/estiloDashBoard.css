@@ -1,0 +1,13 @@
+
+#lblMensaje{
+    -fx-text-fill: #858585;
+}
+
+#btnCrearProducto{
+    -fx-background-color: #32b547;
+    -fx-text-fill:  white;
+    -fx-font-size:  14px;
+    -fx-padding:  10 20;
+    -fx-cursor: hand;
+    -fx-background-radius:  5;
+}
